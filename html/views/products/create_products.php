@@ -12,6 +12,8 @@ foreach ($products as $product) {
 $providerModel = new ProviderModel();
 $providers = $providerModel->getAll();
 
+$types = $productsModel->getAllTypes();
+
 ?>
 
 <!DOCTYPE html>
@@ -33,6 +35,16 @@ $providers = $providerModel->getAll();
                 <div class="mb-3">
                     <label for="stock" class="form-label">Stock:</label>
                     <input type="text" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="form-control" name="stock" required>
+                </div>
+                <div class="mb-3">
+                    <label for="productType" class="form-label">Tipo:</label>
+                    <select class="form-select form-control" name="productType" aria-label="Default select example">
+                    <?php
+                    foreach ($types as $type) {
+                        echo '<option value="' . $type->getIdType() . '">' . $type->getNameType() . '</option>';
+                    }
+                    ?>
+                </select>
                 </div>
                 <div class="mb-3">
                     <label for="price" class="form-label">Precio:</label>
