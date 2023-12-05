@@ -7,6 +7,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $productsModel = new ProductsModel();
 
     $products = $productsModel->get($userId);
+    $types = $productsModel->getAllTypes();
 
     if ($products) {
         $existingUsernames = json_encode($productsModel->getAllNames());
@@ -40,6 +41,17 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         <div class="mb-3">
                             <label for="stock" class="form-label">Stock</label>
                             <input type='text' maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class='form-control' name='stock' value='<?php echo $products->getStock(); ?>'>
+                        </div>
+                        <div class="mb-3">
+                        <label for="productType" class="form-label">Tipo:</label>
+                        <select class="form-select form-control" name="productType" aria-label="Default select example">
+                            <?php
+                            foreach ($types as $type) {
+                                $selected = ($type->getIdType() == $products->getIdType()) ? 'selected' : '';
+                                echo '<option value="' . $type->getIdType() . '" ' . $selected . '>' . $type->getNameType() . '</option>';
+                            }
+                            ?>
+                        </select>
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Precio:</label>
