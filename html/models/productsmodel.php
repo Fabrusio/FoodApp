@@ -13,6 +13,8 @@ class ProductsModel extends Model{
     private $stockAlert;
     private $razonSocial;
     private $cuit;
+    private $idType;
+    private $nameType;
 
     public function __construct() {
         parent::__construct();
@@ -24,15 +26,18 @@ class ProductsModel extends Model{
         $this->stockAlert = 0;
         $this->razonSocial = '';
         $this->cuit = '';
+        $this->idType = 0;
+        $this->nameType = 0;
     }
 
 
      public function getAll(){
         $items = [];
         try{
-        $query = $this->query('SELECT products.*, provedores.id_provedor, provedores.razon_social, provedores.CUIT
+        $query = $this->query('SELECT products.*, provedores.id_provedor, provedores.razon_social, provedores.CUIT, product_types.id_type, product_types.type_name
                                     FROM products
-                                    JOIN provedores ON products.id_provedor = provedores.id_provedor');
+                                    JOIN provedores ON products.id_provedor = provedores.id_provedor
+                                    JOIN product_types ON products.id_type = product_types.id_type');
             while($p = $query->fetch(PDO::FETCH_ASSOC)){
                 $item = new ProductsModel();
                 $item->setId($p['id_product']);
@@ -43,7 +48,8 @@ class ProductsModel extends Model{
                 $item->setStockAlert($p['alerta_stock']);
                 $item->setRazonSocial($p['razon_social']);
                 $item->setCuit($p['CUIT']);
-
+                $item->setIdType($p['id_type']);
+                $item->setNameType($p['type_name']);
 
                 array_push($items ,$item);
             }
@@ -68,11 +74,30 @@ class ProductsModel extends Model{
         }
     }
 
+    public function getAllTypes(){
+        $items = [];
+        try{
+            $query = $this->query('SELECT product_types.*
+                                    FROM product_types');
+            while($p = $query->fetch(PDO::FETCH_ASSOC)){
+                $item = new ProductsModel();
+                $item->setIdType($p['id_type']);
+                $item->setNameType($p['type_name']);
+                array_push($items ,$item);
+            }
+
+            return $items;
+        }catch(PDOException $e){
+            error_log('PRODUCTSMODEL::getAllTypes> PDOException '.$e);
+        }
+    }
+
     public function get($id){
         try{
-            $query = $this->prepare('SELECT products.*, provedores.id_provedor, provedores.razon_social, provedores.CUIT
+            $query = $this->prepare('SELECT products.*, provedores.id_provedor, provedores.razon_social, provedores.CUIT, product_types.id_type, product_types.type_name
                                         FROM products
                                         JOIN provedores ON products.id_provedor = provedores.id_provedor
+                                        JOIN product_types ON products.id_type = product_types.id_type
                                         WHERE products.id_product = :id;');
             $query->execute([
                 'id' => $id,
@@ -90,6 +115,8 @@ class ProductsModel extends Model{
             $this->setRazonSocial($product['razon_social']);
             $this->setCuit($product['CUIT']);
             $this->setStockAlert($product['alerta_stock']);
+            $this->setIdType($product['id_type']);
+            $this->setNameType($product['type_name']);
             return $this;
 
         }catch(PDOException $e){
@@ -111,15 +138,16 @@ class ProductsModel extends Model{
         }
     }
 
-    public function createProduct($productName, $stock, $price, $providerId, $stockAlert) {
+    public function createProduct($productName, $stock, $price, $providerId, $stockAlert, $productType) {
         try {
-            $query = $this->prepare('INSERT INTO products (name_iten, stock, precio_unitario, id_provedor, alerta_stock) VALUES (:name, :stock, :price, :provider, :stockAlert)');
+            $query = $this->prepare('INSERT INTO products (name_iten, stock, precio_unitario, id_provedor, alerta_stock, id_type) VALUES (:name, :stock, :price, :provider, :stockAlert, :type)');
             $query->execute([
                 'name' => $productName,
                 'stock' => $stock,
                 'price' => $price,
                 'provider' => $providerId,
                 'stockAlert' => $stockAlert,
+                'type' => $productType,
             ]);
     
             return true;
@@ -142,12 +170,12 @@ class ProductsModel extends Model{
         }
     }
 
-    public function update($id, $productName, $stock, $price, $provider, $stockAlert){
+    public function update($id, $productName, $stock, $price, $provider, $stockAlert, $productType){
         try {
             $query = $this->prepare('UPDATE products 
             SET name_iten = :productName, stock = :stock, precio_unitario = :price,
             id_provedor = (SELECT id_provedor FROM provedores WHERE id_provedor = :provider), 
-            alerta_stock = :stockAlert 
+            alerta_stock = :stockAlert, id_type = (SELECT id_type FROM product_types WHERE id_type = :productType)
             WHERE id_product = :id');
             error_log("ABAJO EL ID QUE APARECE PERO EN UPDATE EN MODELO");
             error_log($id);
@@ -158,6 +186,7 @@ class ProductsModel extends Model{
                 'price' => $price,
                 'provider' => $provider,
                 'stockAlert' => $stockAlert,
+                'productType' => $productType,
             ]);
             error_log('PRODUCTSMODEL::UPDATE-> ACÁ ESTOY, SI APAREZCO LLEGA AL MODELO');
             return true;
@@ -178,6 +207,8 @@ class ProductsModel extends Model{
      public function setStockAlert($stockAlert){             $this->stockAlert = $stockAlert;  }
      public function setRazonSocial($razonSocial){             $this->razonSocial = $razonSocial;  }
      public function setCuit($cuit){             $this->cuit = $cuit;  }
+     public function setIdType($idType){             $this->idType = $idType;  }
+     public function setNameType($nameType){             $this->nameType = $nameType;  }
 
      public function getId(){                return $this->id;}
      public function getItemName(){                return $this->itemName;}
@@ -187,6 +218,8 @@ class ProductsModel extends Model{
      public function getStockAlert(){                return $this->stockAlert;}
      public function getRazonSocial(){                return $this->razonSocial;}
      public function getCuit(){                return $this->cuit;}
+     public function getIdType(){                return $this->idType;}
+     public function getNameType(){                return $this->nameType;}
 
 }//cierra Clase
 
