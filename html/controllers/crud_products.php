@@ -27,7 +27,7 @@ class Crud_products extends SessionController {
     }
 
     public function createProduct(){
-        if($this->existPOST(['productname', 'stock', 'productType', 'price','providerName', 'stockAlert', 'expirationDate', 'batchNumber'])){
+        if($this->existPOST(['productname', 'stock', 'productType', 'price','providerName', 'stockAlert', 'expirationDate', 'batchNumber', 'purchaseDate'])){
             $productName = strtolower($_POST["productname"]);
             $stock = $_POST["stock"];
             $productType = $_POST["productType"];
@@ -36,12 +36,14 @@ class Crud_products extends SessionController {
             $stockAlert = $_POST["stockAlert"];
             $expirationDate = $_POST["expirationDate"];
             $batchNumber = strtoupper($_POST["batchNumber"]);
+            $purchaseDate = $_POST["purchaseDate"];
 
             $productsModel = new ProductsModel();
-            if($productsModel->productNameExists(0, $productName)){
-                echo "Ya existe ese producto.";
+            if($productsModel->productNameExists(0, $productName) or $productsModel->batchNumberExists(0, $batchNumber)){
+                echo "Ya existe ese producto y/o número de lote.";
+                error_log('CONTROLADOR::PRODUCTOS-> Existe el producto o número de lote.');
             } else{
-                if ($productsModel->createProduct($productName, $stock, $price, $providerName, $stockAlert, $productType, $expirationDate, $batchNumber)) {
+                if ($productsModel->createProduct($productName, $stock, $price, $providerName, $stockAlert, $productType, $expirationDate, $batchNumber, $purchaseDate)) {
                     echo "Producto ingresado exitosamente.";
                 } else {
                     echo "Error al crear el producto.";
@@ -51,16 +53,16 @@ class Crud_products extends SessionController {
     }
 
     public function editProducts(){
-        if($this->existPOST(['id', 'productName', 'stock', 'productType', 'price','providerName', 'stockAlert', 'expirationDate', 'batchNumber'])){
+        if($this->existPOST(['id', 'productName', 'stock', 'productType', 'price','providerName', 'stockAlert', 'expirationDate', 'batchNumber', 'purchaseDate'])){
             $id = $_POST["id"];
             $name = strtolower($_POST["productName"]); 
+            $batchNumber = strtoupper($_POST["batchNumber"]);
             error_log('ACÁ ESTOY. SI ESTOY LLAMA AL CONTROLADOR');
 
-            // Verificar si el nuevo nombre de usuario ya existe en la base de datos
             $productsModel = new ProductsModel();
-            if ($productsModel->productNameExists($id, $name)) {
-                echo "Ya existe ese producto.";
-                error_log('CONTROLADOR::PRODUCTOS-> EL USUARIO YA EXISTE TE TIRA ERROR');
+            if ($productsModel->productNameExists($id, $name) or $productsModel->batchNumberExists($id, $batchNumber)) {
+                echo "Ya existe ese producto y/o número de lote.";
+                error_log('CONTROLADOR::PRODUCTOS-> EL PRODUCTO O NÚMERO DE LOTE YA EXISTE, TE TIRA ERROR');
             } else {
                 $productName = strtolower($_POST["productName"]);
                 $stock = $_POST["stock"];
@@ -69,10 +71,10 @@ class Crud_products extends SessionController {
                 $provider = $_POST["providerName"];
                 $stockAlert = $_POST["stockAlert"];
                 $expirationDate = $_POST["expirationDate"];
-                $batchNumber = strtoupper($_POST["batchNumber"]);
+                $purchaseDate = $_POST["purchaseDate"];
 
                 $productsModel = new ProductsModel();
-                if ($productsModel->update($id, $productName, $stock, $price, $provider, $stockAlert, $productType, $expirationDate, $batchNumber)) {
+                if ($productsModel->update($id, $productName, $stock, $price, $provider, $stockAlert, $productType, $expirationDate, $batchNumber, $purchaseDate)) {
                     error_log('CONTROLADOR::PRODUCTOS-> SE ENVÍA');
                 } else {
                     echo "Error al actualizar el Producto.";
