@@ -15,6 +15,9 @@ class ProductsModel extends Model{
     private $cuit;
     private $idType;
     private $nameType;
+    private $dayHour;
+    private $expirationDate;
+    private $batchNumber;
 
     public function __construct() {
         parent::__construct();
@@ -28,6 +31,9 @@ class ProductsModel extends Model{
         $this->cuit = '';
         $this->idType = 0;
         $this->nameType = 0;
+        $this->dayHour = '';
+        $this->expirationDate = '';
+        $this->batchNumber = '';
     }
 
 
@@ -50,6 +56,9 @@ class ProductsModel extends Model{
                 $item->setCuit($p['CUIT']);
                 $item->setIdType($p['id_type']);
                 $item->setNameType($p['type_name']);
+                $item->setDayHour($p['dia_hora']);
+                $item->setExpirationDate($p['expiration_date']);
+                $item->setBatchNumber($p['batch_number']);
 
                 array_push($items ,$item);
             }
@@ -117,6 +126,9 @@ class ProductsModel extends Model{
             $this->setStockAlert($product['alerta_stock']);
             $this->setIdType($product['id_type']);
             $this->setNameType($product['type_name']);
+            $this->setDayHour($product['dia_hora']);
+            $this->setExpirationDate($product['expiration_date']);
+            $this->setBatchNumber($product['batch_number']);
             return $this;
 
         }catch(PDOException $e){
@@ -138,9 +150,9 @@ class ProductsModel extends Model{
         }
     }
 
-    public function createProduct($productName, $stock, $price, $providerId, $stockAlert, $productType) {
+    public function createProduct($productName, $stock, $price, $providerId, $stockAlert, $productType, $expirationDate, $batchNumber) {
         try {
-            $query = $this->prepare('INSERT INTO products (name_iten, stock, precio_unitario, id_provedor, alerta_stock, id_type) VALUES (:name, :stock, :price, :provider, :stockAlert, :type)');
+            $query = $this->prepare('INSERT INTO products (name_iten, stock, precio_unitario, id_provedor, alerta_stock, id_type, expiration_date, batch_number) VALUES (:name, :stock, :price, :provider, :stockAlert, :type, :expirationDate, :batchNumber)');
             $query->execute([
                 'name' => $productName,
                 'stock' => $stock,
@@ -148,6 +160,8 @@ class ProductsModel extends Model{
                 'provider' => $providerId,
                 'stockAlert' => $stockAlert,
                 'type' => $productType,
+                'expirationDate' => $expirationDate,
+                'batchNumber' => $batchNumber,
             ]);
     
             return true;
@@ -170,12 +184,12 @@ class ProductsModel extends Model{
         }
     }
 
-    public function update($id, $productName, $stock, $price, $provider, $stockAlert, $productType){
+    public function update($id, $productName, $stock, $price, $provider, $stockAlert, $productType, $expirationDate, $batchNumber){
         try {
             $query = $this->prepare('UPDATE products 
             SET name_iten = :productName, stock = :stock, precio_unitario = :price,
             id_provedor = (SELECT id_provedor FROM provedores WHERE id_provedor = :provider), 
-            alerta_stock = :stockAlert, id_type = (SELECT id_type FROM product_types WHERE id_type = :productType)
+            alerta_stock = :stockAlert, id_type = (SELECT id_type FROM product_types WHERE id_type = :productType), expiration_date = :expirationDate, batch_number = :batchNumber
             WHERE id_product = :id');
             error_log("ABAJO EL ID QUE APARECE PERO EN UPDATE EN MODELO");
             error_log($id);
@@ -187,6 +201,8 @@ class ProductsModel extends Model{
                 'provider' => $provider,
                 'stockAlert' => $stockAlert,
                 'productType' => $productType,
+                'expirationDate' => $expirationDate,
+                'batchNumber' => $batchNumber,
             ]);
             error_log('PRODUCTSMODEL::UPDATE-> ACÁ ESTOY, SI APAREZCO LLEGA AL MODELO');
             return true;
@@ -209,6 +225,9 @@ class ProductsModel extends Model{
      public function setCuit($cuit){             $this->cuit = $cuit;  }
      public function setIdType($idType){             $this->idType = $idType;  }
      public function setNameType($nameType){             $this->nameType = $nameType;  }
+     public function setDayHour($dayHour){             $this->dayHour = $dayHour;  }
+     public function setExpirationDate($expirationDate){             $this->expirationDate = $expirationDate;  }
+     public function setBatchNumber($batchNumber){             $this->batchNumber = $batchNumber;  }
 
      public function getId(){                return $this->id;}
      public function getItemName(){                return $this->itemName;}
@@ -220,6 +239,9 @@ class ProductsModel extends Model{
      public function getCuit(){                return $this->cuit;}
      public function getIdType(){                return $this->idType;}
      public function getNameType(){                return $this->nameType;}
+     public function getDayHour(){                return $this->dayHour;}
+     public function getExpirationDate(){                return $this->expirationDate;}
+     public function getBatchNumber(){                return $this->batchNumber;}
 
 }//cierra Clase
 
