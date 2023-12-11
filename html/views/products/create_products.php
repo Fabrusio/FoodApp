@@ -28,6 +28,10 @@ $types = $productsModel->getAllTypes();
             <h2 class="text-center mb-4">Adición de productos</h2>
             <form method="post" action="<?php echo constant('URL') ?>crud_products/createProduct" id="miFormulario">
                 <div class="mb-3">
+                    <label for="batchNumber" class="form-label">Número de lote:</label>
+                    <input type='text' maxlength="20" class='form-control' name='batchNumber' required>
+                </div>
+                <div class="mb-3">
                     <label for="productname" class="form-label">Nombre del producto:</label>
                     <input type="text" class="form-control" name="productname" id="productname" maxlength="50" required>
                     <span id="productname-error" style="color: red;"></span>
@@ -63,6 +67,10 @@ $types = $productsModel->getAllTypes();
                 <div class="mb-3">
                     <label for="stockAlert" class="form-label">Alerta de stock:</label>
                     <input type="text" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="form-control" name="stockAlert" required>
+                </div>
+                <div class="mb-3">
+                        <label for="expirationDate">Fecha de Vencimiento:</label>
+                        <input type="date" id="expirationDate" name="expirationDate" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Enviar</button>
             </form>
