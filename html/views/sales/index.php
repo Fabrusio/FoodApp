@@ -983,6 +983,9 @@ function realizarVenta() {
 
 } /* FIN realizarVenta */
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function generarPDF(arr, totalVenta, paymentMethod, datos) {
     var pdf = new window.jspdf.jsPDF();
@@ -1039,11 +1042,17 @@ function generarPDF(arr, totalVenta, paymentMethod, datos) {
             nombreMetodoPago = "Desconocido";
     }
 
+    var fechaHora = new Date();
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+    var fechaHoraFormato = fechaHora.toLocaleDateString('es-ES', options);
+    fechaHoraFormato = capitalizeFirstLetter(fechaHoraFormato);
+
     pdf.text("________________________________________", pdf.internal.pageSize.getWidth() / 2 , 50 + arr.length * 10, {
         align: 'center'
     });
     pdf.text(`Total: $${totalVenta}`, 130, 70 + arr.length * 10);
     pdf.text(`Método de Pago: ${nombreMetodoPago}`, 20, 70 + arr.length * 10);
+    pdf.text(`${fechaHoraFormato}`, 20, 90 + arr.length * 10)
 
     pdf.save("venta.pdf");
 }
