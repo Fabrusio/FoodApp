@@ -5,8 +5,10 @@ include_once "/var/www/html/models/providermodel.php";
 $productsModel = new ProductsModel();
 $products = $productsModel->getAll();
 $nameOfProduct = array();
+$batchNumber = array();
 foreach ($products as $product) {
     $nameOfProduct[] = $product->getItemName();
+    $batchNumber[] = $product->getBatchNumber();
 }
 
 $providerModel = new ProviderModel();
@@ -27,6 +29,11 @@ $types = $productsModel->getAllTypes();
         <div class="container">
             <h2 class="text-center mb-4">Adición de productos</h2>
             <form method="post" action="<?php echo constant('URL') ?>crud_products/createProduct" id="miFormulario">
+                <div class="mb-3">
+                    <label for="batchNumber" class="form-label">Número de lote:</label>
+                    <input type='text' maxlength="20" class='form-control' id='batchNumber' name='batchNumber' required>
+                    <span id="batchNumber-error" style="color: red;"></span>
+                </div>
                 <div class="mb-3">
                     <label for="productname" class="form-label">Nombre del producto:</label>
                     <input type="text" class="form-control" name="productname" id="productname" maxlength="50" required>
@@ -64,6 +71,14 @@ $types = $productsModel->getAllTypes();
                     <label for="stockAlert" class="form-label">Alerta de stock:</label>
                     <input type="text" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="form-control" name="stockAlert" required>
                 </div>
+                <div class="mb-3">
+                        <label for="purchaseDate">Fecha de Compra:</label>
+                        <input type="date" id="purchaseDate" name="purchaseDate" required>
+                </div>
+                <div class="mb-3">
+                        <label for="expirationDate">Fecha de Vencimiento:</label>
+                        <input type="date" id="expirationDate" name="expirationDate" required>
+                </div>
                 <button type="submit" class="btn btn-primary">Enviar</button>
             </form>
         </div>
@@ -72,11 +87,15 @@ $types = $productsModel->getAllTypes();
 
 <script>
     var existingNames = <?php echo json_encode($nameOfProduct); ?>;
+    var existingBatch = <?php echo json_encode($batchNumber); ?>;
+    console.log(existingBatch);
     document.querySelector('form').addEventListener('submit', function(event) {
         event.preventDefault();
 
-        var product = document.getElementById('productname').value;
+        var product = document.getElementById('productname').value.toLowerCase();
+        var batch = document.getElementById('batchNumber').value.toUpperCase();
         var productError = document.getElementById('productname-error');
+        var batchError = document.getElementById('batchNumber-error');
 
         if (existingNames.includes(product)) {
             productError.innerText = 'El producto ya existe.';
@@ -84,6 +103,15 @@ $types = $productsModel->getAllTypes();
                     icon: 'error',
                     title: 'EL PRODUCTO YA EXISTE',
                     text: 'Por favor ingrese uno nuevo.'
+                }).then(() => {
+          
+                });
+        } else if(existingBatch.includes(batch)){
+            batchError.innerText = 'El número de lote ya existe.';
+            Swal.fire({
+                    icon: 'error',
+                    title: 'EL LOTE YA EXISTE',
+                    text: 'Por favor ingrese otro.'
                 }).then(() => {
           
                 });
@@ -123,4 +151,4 @@ $types = $productsModel->getAllTypes();
 
         }
     });
-</script>
+</script> 
