@@ -77,8 +77,12 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                             <input type='text' maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class='form-control' name='stockAlert' value='<?php echo $products->getStockAlert(); ?>' required>
                         </div>
                         <div class="mb-3">
-                        <label for="expirationDate">Fecha de Vencimiento:</label>
-                        <input type="date" id="expirationDate" class='form-control' name="expirationDate" value='<?php echo $products->getExpirationDate(); ?>' required>
+                            <label for="purchaseDate">Fecha de Compra:</label>
+                            <input type="date" id="purchaseDate" class='form-control' name="purchaseDate" value='<?php echo $products->getPurchaseDate(); ?>' required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="expirationDate">Fecha de Vencimiento:</label>
+                            <input type="date" id="expirationDate" class='form-control' name="expirationDate" value='<?php echo $products->getExpirationDate(); ?>' required>
                         </div>
                         <button type='submit' class='btn btn-primary'>Guardar</button>
                     </form>
@@ -104,9 +108,8 @@ echo 'ID de usuario no válido.';
         var usernameError = document.getElementById('username-error');
 
         if (existingUsernames.includes(username)) {
-            usernameError.innerText = 'El nombre de usuario ya está en uso.';
+            usernameError.innerText = 'El producto ya existe.';
         } else {
-            // Envía el formulario si el nombre de usuario no está en uso
             this.submit();
         }
     });
