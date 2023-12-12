@@ -112,6 +112,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- JSTREE JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- ============================================================
     =LIBRERIAS PARA USO DE DATATABLES JS
