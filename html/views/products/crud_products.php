@@ -28,7 +28,7 @@ usort($products, "cmp");
                     <th>Precio</th>
                     <th>Proveedor</th>
                     <th>Alerta stock</th>
-                    <th>Fecha de ingreso y hora</th>
+                    <th>Fecha de compra</th>
                     <th>Fecha de vencimiento</th>
                     <th>Eliminar Producto</th>
                     <th>Editar Producto</th>
@@ -42,10 +42,10 @@ usort($products, "cmp");
                     <td><?php echo $product->getItemName(); ?></td>
                     <td><?php echo $product->getStock(); ?></td>
                     <td><?php echo $product->getNameType(); ?></td>
-                    <td><?php echo $product->getPrice(); ?></td>
+                    <td>$<?php echo $product->getPrice(); ?></td>
                     <td><?php echo $product->getRazonSocial(); ?></td>
                     <td><?php if(($product->getStock()) < ($product->getStockAlert())){echo 'CONSIDERE COMPRAR MÁS';} else{echo 'Va bien';}?></td>
-                    <td><?php echo $product->getDayHour(); ?></td>
+                    <td><?php echo $product->getPurchaseDate(); ?></td>
                     <td><?php echo $product->getExpirationDate(); ?></td>
                     <td>
                         <form id="deleteForm" action='<?php echo constant('URL'); ?>crud_products/deleteProduct' method="POST">
