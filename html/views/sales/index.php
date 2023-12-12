@@ -916,12 +916,17 @@ function realizarVenta() {
             
             var formData = new FormData();
             var arr = [];
+            var datos = [];
 
             table.rows().eq(0).each(function(index) {
 
                 var row = table.row(index);
 
                 var data = row.data();
+
+                datos[index] = data['id_menu'] + "," + data['name_menu'];
+                console.log('ACA ABAJO QUÉ ES LO QUE TIENE LA VARIABLE QUE CREE datos');
+                console.log(datos);
 
                 arr[index] = data['id_menu'] + "," + parseFloat($.parseHTML(data['cantidad'])[0]['value']) + "," + data['total'].replace("$ ", "");
 
@@ -947,6 +952,9 @@ function realizarVenta() {
 
                     
                     mensajeToast('success', respuesta);
+
+                    // Generar el PDF
+                    generarPDF(arr, totalVenta, paymetMethod, datos);
 
                     table.clear().draw();
 
@@ -974,4 +982,79 @@ function realizarVenta() {
     $("#iptCodigoVenta").focus();
 
 } /* FIN realizarVenta */
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function generarPDF(arr, totalVenta, paymentMethod, datos) {
+    var pdf = new window.jspdf.jsPDF();
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.text("AppFood", pdf.internal.pageSize.getWidth() / 2, 10, {
+        align: 'center'
+    });
+    
+    pdf.text("Detalle de Venta", 25, 20);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("________________________________________", pdf.internal.pageSize.getWidth() / 2, 30, {
+        align: 'center'
+    });
+
+    pdf.text("Menú - Cantidad - Valor", pdf.internal.pageSize.getWidth() / 2, 40, {
+        align: 'center'
+    });
+
+    for (var i = 0; i < arr.length; i++) {
+        var ventaInfo = arr[i].split(",");
+        var idMenu = ventaInfo[0];
+
+        // Buscar el nombre del menú en datos
+        var nombreMenu = "";
+        for (var j = 0; j < datos.length; j++) {
+            var datosInfo = datos[j].split(",");
+            if (datosInfo[0] === idMenu) {
+                nombreMenu = datosInfo[1];
+                break;
+            }
+        }
+
+        pdf.text(`${nombreMenu} - ${ventaInfo[1]} - $${ventaInfo[2]}`, pdf.internal.pageSize.getWidth() / 2, 50 + i * 10, {
+            align: 'center'
+        });
+    }
+
+    var nombreMetodoPago = "";
+    switch (parseInt(paymentMethod)) {
+        case 1:
+            nombreMetodoPago = "Efectivo";
+            break;
+        case 2:
+            nombreMetodoPago = "Débito";
+            break;
+        case 3:
+            nombreMetodoPago = "QR";
+            break;
+        case 4:
+            nombreMetodoPago = "Transferencia";
+            break;
+        default:
+            nombreMetodoPago = "Desconocido";
+    }
+
+    var fechaHora = new Date();
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+    var fechaHoraFormato = fechaHora.toLocaleDateString('es-ES', options);
+    fechaHoraFormato = capitalizeFirstLetter(fechaHoraFormato);
+
+    pdf.text("________________________________________", pdf.internal.pageSize.getWidth() / 2 , 50 + arr.length * 10, {
+        align: 'center'
+    });
+    pdf.text(`Total: $${totalVenta}`, 130, 70 + arr.length * 10);
+    pdf.text(`Método de Pago: ${nombreMetodoPago}`, 20, 70 + arr.length * 10);
+    pdf.text(`${fechaHoraFormato}`, 20, 90 + arr.length * 10)
+
+    pdf.save("venta.pdf");
+}
+
 </script>
