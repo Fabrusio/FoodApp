@@ -23,6 +23,7 @@ usort($products, "cmp");
                     <th>ID</th>
                     <th>Nombre de Producto</th>
                     <th>Stock</th>
+                    <th></th>
                     <th>Precio</th>
                     <th>Proveedor</th>
                     <th>Alerta stock</th>
@@ -36,6 +37,7 @@ usort($products, "cmp");
                     <td><?php echo $product->getId(); ?></td>
                     <td><?php echo $product->getItemName(); ?></td>
                     <td><?php echo $product->getStock(); ?></td>
+                    <td><?php echo $product->getNameType(); ?></td>
                     <td><?php echo $product->getPrice(); ?></td>
                     <td><?php echo $product->getRazonSocial(); ?></td>
                     <td><?php if(($product->getStock()) < ($product->getStockAlert())){echo 'CONSIDERE COMPRAR MÁS';} else{echo 'Va bien';}?></td>

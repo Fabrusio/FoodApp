@@ -27,9 +27,10 @@ class Crud_products extends SessionController {
     }
 
     public function createProduct(){
-        if($this->existPOST(['productname', 'stock', 'price','providerName', 'stockAlert'])){
+        if($this->existPOST(['productname', 'stock', 'productType', 'price','providerName', 'stockAlert'])){
             $productName = strtolower($_POST["productname"]);
             $stock = $_POST["stock"];
+            $productType = $_POST["productType"];
             $price = $_POST["price"];
             $providerName = $_POST["providerName"];
             $stockAlert = $_POST["stockAlert"];
@@ -38,7 +39,7 @@ class Crud_products extends SessionController {
             if($productsModel->productNameExists(0, $productName)){
                 echo "Ya existe ese producto.";
             } else{
-                if ($productsModel->createProduct($productName, $stock, $price, $providerName, $stockAlert)) {
+                if ($productsModel->createProduct($productName, $stock, $price, $providerName, $stockAlert, $productType)) {
                     echo "Producto ingresado exitosamente.";
                 } else {
                     echo "Error al crear el producto.";
@@ -48,7 +49,7 @@ class Crud_products extends SessionController {
     }
 
     public function editProducts(){
-        if($this->existPOST(['id', 'productName', 'stock', 'price','providerName', 'stockAlert'])){
+        if($this->existPOST(['id', 'productName', 'stock', 'productType', 'price','providerName', 'stockAlert'])){
             $id = $_POST["id"];
             $name = strtolower($_POST["productName"]); 
             error_log('ACÁ ESTOY. SI ESTOY LLAMA AL CONTROLADOR');
@@ -61,12 +62,13 @@ class Crud_products extends SessionController {
             } else {
                 $productName = strtolower($_POST["productName"]);
                 $stock = $_POST["stock"];
+                $productType = $_POST["productType"];
                 $price = $_POST["price"];
                 $provider = $_POST["providerName"];
                 $stockAlert = $_POST["stockAlert"];
 
                 $productsModel = new ProductsModel();
-                if ($productsModel->update($id, $productName, $stock, $price, $provider, $stockAlert)) {
+                if ($productsModel->update($id, $productName, $stock, $price, $provider, $stockAlert, $productType)) {
                     error_log('CONTROLADOR::PRODUCTOS-> SE ENVÍA');
                 } else {
                     echo "Error al actualizar el Producto.";
