@@ -27,23 +27,18 @@ class Crud_products extends SessionController {
     }
 
     public function createProduct(){
-        if($this->existPOST(['productname', 'stock', 'productType', 'price','providerName', 'stockAlert', 'expirationDate', 'batchNumber', 'purchaseDate'])){
+        if($this->existPOST(['productname', 'productType', 'stockAlert'])){
             $productName = strtolower($_POST["productname"]);
-            $stock = $_POST["stock"];
+            $stock = 0;
             $productType = $_POST["productType"];
-            $price = $_POST["price"];
-            $providerName = $_POST["providerName"];
             $stockAlert = $_POST["stockAlert"];
-            $expirationDate = $_POST["expirationDate"];
-            $batchNumber = strtoupper($_POST["batchNumber"]);
-            $purchaseDate = $_POST["purchaseDate"];
 
             $productsModel = new ProductsModel();
-            if($productsModel->productNameExists(0, $productName) or $productsModel->batchNumberExists(0, $batchNumber)){
+            if($productsModel->productNameExists(0, $productName)){
                 echo "Ya existe ese producto y/o número de lote.";
                 error_log('CONTROLADOR::PRODUCTOS-> Existe el producto o número de lote.');
             } else{
-                if ($productsModel->createProduct($productName, $stock, $price, $providerName, $stockAlert, $productType, $expirationDate, $batchNumber, $purchaseDate)) {
+                if ($productsModel->createProduct($productName, $stock, $stockAlert, $productType)) {
                     echo "Producto ingresado exitosamente.";
                 } else {
                     echo "Error al crear el producto.";
@@ -53,28 +48,23 @@ class Crud_products extends SessionController {
     }
 
     public function editProducts(){
-        if($this->existPOST(['id', 'productName', 'stock', 'productType', 'price','providerName', 'stockAlert', 'expirationDate', 'batchNumber', 'purchaseDate'])){
+        if($this->existPOST(['id', 'productName', 'stock', 'productType', 'stockAlert'])){
             $id = $_POST["id"];
             $name = strtolower($_POST["productName"]); 
-            $batchNumber = strtoupper($_POST["batchNumber"]);
             error_log('ACÁ ESTOY. SI ESTOY LLAMA AL CONTROLADOR');
 
             $productsModel = new ProductsModel();
-            if ($productsModel->productNameExists($id, $name) or $productsModel->batchNumberExists($id, $batchNumber)) {
+            if ($productsModel->productNameExists($id, $name)) {
                 echo "Ya existe ese producto y/o número de lote.";
                 error_log('CONTROLADOR::PRODUCTOS-> EL PRODUCTO O NÚMERO DE LOTE YA EXISTE, TE TIRA ERROR');
             } else {
                 $productName = strtolower($_POST["productName"]);
                 $stock = $_POST["stock"];
                 $productType = $_POST["productType"];
-                $price = $_POST["price"];
-                $provider = $_POST["providerName"];
                 $stockAlert = $_POST["stockAlert"];
-                $expirationDate = $_POST["expirationDate"];
-                $purchaseDate = $_POST["purchaseDate"];
 
                 $productsModel = new ProductsModel();
-                if ($productsModel->update($id, $productName, $stock, $price, $provider, $stockAlert, $productType, $expirationDate, $batchNumber, $purchaseDate)) {
+                if ($productsModel->update($id, $productName, $stock, $stockAlert, $productType)) {
                     error_log('CONTROLADOR::PRODUCTOS-> SE ENVÍA');
                 } else {
                     echo "Error al actualizar el Producto.";
@@ -84,7 +74,11 @@ class Crud_products extends SessionController {
         }
     }
 
-    // TIPOS DE UNIDAD/PESAJE
+
+    //         --------------------------------
+    //              TIPO DE PESAJE, UNIDAD
+    //         --------------------------------
+
 
     public function createType(){
         if($this->existPOST(['nameType'])){
