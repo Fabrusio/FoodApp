@@ -1,6 +1,5 @@
 <?php
 include_once "../../models/productsmodel.php"; 
-include_once "../../models/providermodel.php"; 
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $userId = $_GET['id'];
@@ -11,8 +10,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
     if ($products) {
         $existingUsernames = json_encode($productsModel->getAllNames());
-        $providerModel = new ProviderModel();
-        $providers = $providerModel->getAll();
+
 ?>
 
 
@@ -34,10 +32,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 <form method='POST' action='<?php echo constant('URL') ?>crud_products/editProducts'>
                             <input type='hidden' name='id' value='<?php echo $userId; ?>'>
                         <div class="mb-3">
-                            <label for="batchNumber" class="form-label">Número de lote:</label>
-                            <input type='text' maxlength="20" class='form-control' name='batchNumber' value='<?php echo $products->getBatchNumber(); ?>' required>
-                        </div>
-                        <div class="mb-3">
                             <label for="productName" class="form-label">Producto:</label>
                             <input required type='text' class='form-control' name='productName' id="productName" value='<?php echo $products->getItemName(); ?>'>
                             <span id="username-error" style="color: red;"></span>
@@ -58,31 +52,8 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         </select>
                         </div>
                         <div class="mb-3">
-                            <label for="price" class="form-label">Precio:</label>
-                            <input type='text' maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class='form-control' name='price' value='<?php echo $products->getPrice(); ?>' required>
-                        </div>
-                        <div class="mb-3">
-                        <label for="providerName" class="form-label">Proveedor:</label>
-                        <select class="form-select form-control" name="providerName" aria-label="Default select example">
-                            <?php
-                            foreach ($providers as $provider) {
-                                $selected = ($provider->getId() == $products->getIdProvider()) ? 'selected' : '';
-                                echo '<option value="' . $provider->getId() . '" ' . $selected . '>' . $provider->getRazonSocial() . '</option>';
-                            }
-                            ?>
-                        </select>
-                        </div>
-                        <div class="mb-3">
                             <label for="stockAlert" class="form-label">Alerta stock:</label>
                             <input type='text' maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class='form-control' name='stockAlert' value='<?php echo $products->getStockAlert(); ?>' required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="purchaseDate">Fecha de Compra:</label>
-                            <input type="date" id="purchaseDate" class='form-control' name="purchaseDate" value='<?php echo $products->getPurchaseDate(); ?>' required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="expirationDate">Fecha de Vencimiento:</label>
-                            <input type="date" id="expirationDate" class='form-control' name="expirationDate" value='<?php echo $products->getExpirationDate(); ?>' required>
                         </div>
                         <button type='submit' class='btn btn-primary'>Guardar</button>
                     </form>
