@@ -150,6 +150,18 @@ session_start();
                              </a>
                          </li>
                          <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products_insert/crud_inserted_products.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Productos insertados</p>
+                             </a>
+                         </li>
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products_insert/insert_products.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Insertar Productos</p>
+                             </a>
+                         </li>
+                         <li class="nav-item">
                              <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products/crud_types.php','content-wrapper')">
                                  <i class="far fa-circle nav-icon"></i>
                                  <p>Administrar Tipos</p>
