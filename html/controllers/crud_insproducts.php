@@ -86,6 +86,87 @@ class Crud_insproducts extends SessionController {
         }
     }
 
+    public function deleteBatch(){
+        if($this->existPOST(['productName', 'quantity', 'price','providerName', 'expirationDate', 'batchNumber', 'purchaseDate', 'reason'])){
+            $productName = strtolower($_POST["productName"]);
+            $quantity = $_POST["quantity"];
+            $price = $_POST["price"];
+            $providerName = $_POST["providerName"];
+            $expirationDate = $_POST["expirationDate"];
+            $batchNumber = strtoupper($_POST["batchNumber"]);
+            $purchaseDate = $_POST["purchaseDate"];
+            $reason = $_POST["reason"];
+            error_log('LLEGÓ AL CREATE');
+
+            $insproductsModel = new InsProductsModel();
+
+                if ($insproductsModel->deleteBatch($productName, $quantity, $price, $providerName, $expirationDate, $batchNumber, $purchaseDate, $reason)) {
+                    echo "Producto ingresado exitosamente.";
+                } else {
+                    echo "Error al crear el producto.";
+                }
+        }
+    }
+
+
+    //         --------------------------------
+    //              RAZONES A DAR DE BAJA
+    //         --------------------------------
+
+
+    public function createReason(){
+        if($this->existPOST(['reason'])){
+
+            $reason = ucfirst(strtolower($_POST["reason"]));
+            $insProductsModel = new InsProductsModel();
+
+            if ($insProductsModel->reasonExists(0, $reason)) {
+                echo "Esa razón ya fue ingresada. Por favor, formule otra.";
+                error_log("Esa razón ya existe.");
+            } else {
+
+                if ($insProductsModel->createReason($reason)) {
+                    error_log("Enviando razón a agregar.");
+                } else {
+                    error_log("Error al intentar enviar esa razón.");
+                }
+            }
+        }
+    }
+
+    public function deleteReason(){
+        if($this->existPOST(['id'])){
+            $id = $this->getPOST('id');
+
+            $insProductsModel = new InsProductsModel();
+        if ($insProductsModel->deleteReason($id)) {
+            error_log("Enviando razón a eliminar -----eliminando------ " . $id);
+        } else {
+            error_log("Error al eliminar esa razón " . $id);
+        }
+            
+        }
+    }
+
+    public function editReason(){
+        if($this->existPOST(['id','name'])){
+            $id = $_POST["id"];
+            $reason = ucfirst(strtolower($_POST["name"]));
+
+            $insProductsModel = new InsProductsModel();
+            if ($insProductsModel->reasonExists($id, $reason)) {
+                echo "Esa razón ya existe.";
+                error_log("Esa razón ya existe.");
+
+            } else {
+                if ($insProductsModel->updateReason($id, $reason)) {
+                    echo "Actualizando razón.";
+                } else {
+                    echo "Error al actualizar esa razón.";
+                }
+            }
+        }
+    }
 
 }
 
