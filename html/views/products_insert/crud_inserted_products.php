@@ -46,10 +46,7 @@ usort($products, "cmp");
                     <td><?php echo $product->getPurchaseDate(); ?></td>
                     <td><?php echo $product->getExpirationDate(); ?></td>
                     <td>
-                        <form id="deleteForm" action='<?php echo constant('URL'); ?>crud_insproducts/deleteProduct' method="POST">
-                            <input type="hidden" name="id" value="<?php echo $product->getId(); ?>">
-                            <button class="btn btn-danger" type="button" name="eliminar" onclick="confirmDelete('<?php echo $product->getId(); ?>')">Eliminar</button>
-                        </form>
+                    <button class="btn btn-danger" type="button" name="eliminar" onclick="openDeleteModal(<?php echo $product->getId(); ?>)">Eliminar</button>
                     </td>
                     <td>
                         <button class="btn btn-warning btn-edit" onclick="openEditModal(<?php echo $product->getId(); ?>)">Editar</button>
@@ -84,37 +81,22 @@ function openEditModal(productId) {
 }
 </script>
 
+<div id="delete-modal-container" style="display: none;"></div>
 <script>
-
-function confirmDelete(productId) {
-    Swal.fire({
-        title: '¿Estás seguro de que deseas eliminar este producto?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "<?php echo constant('URL') ?>crud_insproducts/deleteProduct", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    console.log(xhr.responseText);
-                    var row = document.getElementById("userRow" + productId);
-                    if (row) {
-                        row.remove();
-                    }
-                    CargarContenido('views/products_insert/crud_inserted_products.php', 'content-wrapper');
-                } else {
-                    console.error('Error en la solicitud: ' + xhr.status);
-                }
-            };
-            xhr.send("id=" + productId);
-        }
-    });
-}
-
+    function openDeleteModal(productId) {
+        console.log("ID del producto:", productId);
+        $.ajax({
+            url: "views/products_insert/delete_inserted_products.php", 
+            type: "GET",
+            data: { id: productId }, 
+            success: function(response) {
+                $("#delete-modal-container").html(response).slideDown();
+                $("#eliminarProductoModal").modal("show");
+            },
+            error: function() {
+                alert("Error al cargar el modal de eliminación.");
+            }
+        });
+    }
 </script>
+
