@@ -178,7 +178,7 @@ session_start();
                  <?php }  if ($_SESSION["user_role"]==1) { ?>
                  <li class="nav-item">
                      <a href="#" class="nav-link">
-                     <i class="nav-icon fas fa-users text-warning"></i> 
+                     <i class="nav-icon fas fa-trash  text-warning"></i> 
                          <p>Dar de baja<i class="right fas fa-angle-left"></i></p>
                      </a>
                      <ul class="nav nav-treeview">
