@@ -239,43 +239,61 @@ class InsProductsModel extends Model{
         }
     }    
     
-    // public function getAllDeletedBatches() {
-    //     $deletedBatches = [];
-    //     try {
-    //         $query = $this->query('SELECT db.*, 
-    //             p.name_iten AS item_name,
-    //             pr.razon_social AS provedor_razon_social,
-    //             dr.removal_reason AS deleted_reason
-    //             FROM deleted_batches db
-    //             LEFT JOIN products p ON db.id_name_item = p.id_product
-    //             LEFT JOIN provedores pr ON db.id_provedor = pr.id_provedor
-    //             LEFT JOIN batch_removal_reasons dr ON db.id_deleted_reason = dr.id_reason');
+
+    //         --------------------------------
+    //                LOTES ELIMINADOS
+    //         --------------------------------
+
+
+    public function getAllDeletedBatches(){
+        $deletedBatches = [];
+        try{
+            $query = $this->query('SELECT deleted_batches.*, 
+                                        products.name_iten AS item_name,
+                                        provedores.razon_social AS provedor_razon_social,
+                                        batch_removal_reasons.reason AS deleted_reason
+                                    FROM deleted_batches
+                                    LEFT JOIN products ON deleted_batches.id_name_item = products.id_product
+                                    LEFT JOIN provedores ON deleted_batches.id_provedor = provedores.id_provedor
+                                    LEFT JOIN batch_removal_reasons ON deleted_batches.id_deleted_reason = batch_removal_reasons.id_reason');
             
-    //         while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
-    //             $deletedBatch = new InsProductsModel();
-    //             $deletedBatch->setIdDeletedBatch($row['id_deleted_batch']);
-    //             $deletedBatch->setIdItemName($row['id_name_item']);
-    //             $deletedBatch->setQuantity($row['quantity']);
-    //             $deletedBatch->setPrice($row['price']);
-    //             $deletedBatch->setIdProvider($row['id_provedor']);
-    //             $deletedBatch->setPurchaseDate($row['purchase_date']);
-    //             $deletedBatch->setExpirationDate($row['expiration_date']);
-    //             $deletedBatch->setBatchNumber($row['batch_number']);
-    //             $deletedBatch->setIdRemoval($row['id_deleted_reason']);
-    //             $deletedBatch->setDeletedDate($row['deleted_date']);
-    //             $deletedBatch->setItemName($row['item_name']);
-    //             $deletedBatch->setRazonSocial($row['provedor_razon_social']);
-    //             $deletedBatch->setRemovalReason($row['deleted_reason']);
+            while($row = $query->fetch(PDO::FETCH_ASSOC)){
+                $deletedBatch = new InsProductsModel();
+                $deletedBatch->setId($row['id_deleted_batch']);
+                $deletedBatch->setIdItemName($row['id_name_item']);
+                $deletedBatch->setQuantity($row['quantity']);
+                $deletedBatch->setPrice($row['price']);
+                $deletedBatch->setIdProvider($row['id_provedor']);
+                $deletedBatch->setPurchaseDate($row['purchase_date']);
+                $deletedBatch->setExpirationDate($row['expiration_date']);
+                $deletedBatch->setBatchNumber($row['batch_number']);
+                $deletedBatch->setIdRemoval($row['id_deleted_reason']);
+                $deletedBatch->setDeletedDate($row['deleted_date']);
+                $deletedBatch->setItemName($row['item_name']);
+                $deletedBatch->setRazonSocial($row['provedor_razon_social']);
+                $deletedBatch->setRemovalReason($row['deleted_reason']);
     
-    //             array_push($deletedBatches, $deletedBatch);
-    //         }
-    //         return $deletedBatches;
-    //     } catch (PDOException $e) {
-    //         error_log('INSERTEDPRODUCTSMODEL::getAllDeletedBatches-> PDOException ' . $e);
-    //         return false;
-    //     }
-    // }
+                array_push($deletedBatches, $deletedBatch);
+            }
+            return $deletedBatches;
+        }catch(PDOException $e){
+            error_log('INSERTEDPRODUCTSMODEL::getAllDeletedBatches-> PDOException '.$e);
+            return false;
+        }
+    }
     
+    public function deleteDBatch($id){
+        try{
+            $query = $this->prepare('DELETE FROM deleted_batches WHERE id_deleted_batch = :id');
+            $query->execute([
+                'id' => $id,
+            ]);
+            return true;
+        }catch(PDOException $e){
+            error_log('INSPRODUCTSMODEL::deleteDBatch-> PDOException '.$e);
+            return false;
+        }
+    }
     
 
     //         --------------------------------

@@ -86,6 +86,12 @@ class Crud_insproducts extends SessionController {
         }
     }
 
+
+    //         --------------------------------
+    //                LOTES ELIMINADOS
+    //         --------------------------------
+
+
     public function deleteBatch(){
         if($this->existPOST(['productName', 'quantity', 'price','providerName', 'expirationDate', 'batchNumber', 'purchaseDate', 'reason'])){
             $productName = strtolower($_POST["productName"]);
@@ -105,6 +111,20 @@ class Crud_insproducts extends SessionController {
                 } else {
                     echo "Error al crear el producto.";
                 }
+        }
+    }
+
+    public function deleteDBatch(){
+        if($this->existPOST(['id'])){
+            $id = $this->getPOST('id');
+
+            $insProductsModel = new InsProductsModel();
+        if ($insProductsModel->deleteDBatch($id)) {
+            error_log("Eliminando registro de lote -----eliminando------ " . $id);
+        } else {
+            error_log("Error al eliminar el registro " . $id);
+        }
+            
         }
     }
 
