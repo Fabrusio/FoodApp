@@ -140,6 +140,12 @@
                         <input type="number" min="0" name="iptEfectivo" id="iptEfectivoRecibido" class="form-control form-control-sm" placeholder="Cantidad de efectivo recibida">
                     </div>
 
+                    <div class="form-group mb-2">
+                        <label for="iptClienteEmail" class="col-form-label p-0 m-0">Correo Electrónico (Opcional)</label>
+                        <input type="email" name="iptClienteEmail" id="iptClienteEmail" class="form-control form-control-sm" placeholder="Ingrese correo electrónico del cliente">
+                    </div>
+
+
                     <!-- INPUT CHECK DE EFECTIVO EXACTO -->
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="chkEfectivoExacto">
@@ -647,6 +653,7 @@ function LimpiarInputs() {
     $("#chkEfectivoExacto").prop('checked', false);
     $("#boleta_subtotal").html("0.00");
     $("#boleta_igv").html("0.00")
+    $("#iptClienteEmail").val(""); 
 } /* FIN LimpiarInputs */
 
 /*===================================================================*/
@@ -987,6 +994,11 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function validarCorreoElectronico(email) {
+    const expresionRegular = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return expresionRegular.test(email);
+}
+
 function generarPDF(arr, totalVenta, paymentMethod, datos) {
     var pdf = new window.jspdf.jsPDF();
     
@@ -1054,7 +1066,64 @@ function generarPDF(arr, totalVenta, paymentMethod, datos) {
     pdf.text(`Método de Pago: ${nombreMetodoPago}`, 20, 70 + arr.length * 10);
     pdf.text(`${fechaHoraFormato}`, 20, 90 + arr.length * 10)
 
-    pdf.save("venta.pdf");
+    var clienteEmail = document.getElementById("iptClienteEmail").value;
+    var nombreArchivo = "venta_" + Date.now() + ".pdf";
+    var rutaTemporal = "views/tmp/" + nombreArchivo; // Ruta relativa al servidor
+
+    // Guardar el archivo PDF en el servidor
+    pdf.save(rutaTemporal);
+
+    // Luego, puedes usar la rutaTemporal para adjuntar el archivo en el correo electrónico
+    if (validarCorreoElectronico(clienteEmail)) {
+        console.log("El correo electrónico es válido.");
+        // Enviar datos a PHP para enviar el correo electrónico
+     fetch('views/sales/enviar_correo.php', {
+        method: 'POST',
+        body: JSON.stringify({
+            rutaPDF: rutaTemporal, // Utiliza la ruta temporal
+            correoDestinatario: clienteEmail || "", 
+        })
+    })
+    .then(response => response.text()) // Leer la respuesta como texto
+    .then(data => {
+        console.log("Respuesta del servidor:", data);
+        console.log("Parecería que no hay error, está en el then data en vez del catch error", clienteEmail, rutaTemporal);
+        // Manejar la respuesta del servidor
+    })
+    .catch(error => {
+        console.error("Error al enviar datos:", error);
+    });
+
+    } else {
+        console.log("El correo electrónico no es válido.");
+    }
+
+
+    // pdf.save(nombreArchivo);
+
+    // var clienteEmail = document.getElementById("iptClienteEmail").value;
+    // if (validarCorreoElectronico(clienteEmail)) {
+    //     console.log("El correo electrónico es válido.");
+    //     // Enviar datos a PHP para enviar el correo electrónico
+    //     fetch('enviar_correo.php', {
+    //         method: 'POST',
+    //         body: JSON.stringify({
+    //         rutaPDF: nombreArchivo,
+    //         correoDestinatario: clienteEmail || "", 
+    //         })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log("Respuesta del servidor:", data);
+    //         // Manejar la respuesta del servidor
+    //     })
+    //     .catch(error => {
+    //         console.error("Error al enviar datos:", error);
+    //     });
+    // } else {
+    //     console.log("El correo electrónico no es válido.");
+    // }
+
 }
 
 </script>
