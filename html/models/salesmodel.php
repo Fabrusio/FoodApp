@@ -1,8 +1,8 @@
 <?php
 
-require_once '../libs/database.php';
+require_once '/var/www/html/libs/database.php';
 include_once '/var/www/html/libs/model.php';
-require_once '../libs/conection.php';
+require_once '/var/www/html/libs/conection.php';
 class SalesModel {
 
     function __constructor(){
