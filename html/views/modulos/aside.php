@@ -62,7 +62,12 @@ session_start();
                                  <p>Punto de Venta</p>
                              </a>
                          </li>
-                         
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/sales/send_sales_receipt.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Enviar comprobante</p>
+                             </a>
+                         </li>
                      </ul>
                  </li>
                  
