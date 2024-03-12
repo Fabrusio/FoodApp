@@ -1,8 +1,11 @@
 <?php
 include_once "/var/www/html/models/insproductsmodel.php";
+include_once "/var/www/html/models/productsmodel.php";
 $insproductsModel = new InsProductsModel();
+$productsModel = new ProductsModel();
 
 $products = $insproductsModel->getAll();
+$productsM = $productsModel->getAll();
 function cmp($a, $b) {
     return $a->getId() - $b->getId();
 }
@@ -40,7 +43,13 @@ usort($products, "cmp");
                     <td><?php echo $product->getBatchNumber(); ?></td>
                     <td><?php echo $product->getItemName(); ?></td>
                     <td><?php echo $product->getQuantity(); ?></td>
-                    <td><?php echo $product->getNameType(); ?></td>
+                    <td><?php foreach ($productsM as $productM) {
+                        if ($product->getIdItemName() == $productM->getId()) {
+                            echo $productM->getNameType();
+                            break;
+                        }
+                    }
+                    ?></td>
                     <td><?php echo $product->getPrice(); ?></td>
                     <td><?php echo $product->getRazonSocial(); ?></td>
                     <td><?php echo $product->getPurchaseDate(); ?></td>
