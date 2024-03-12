@@ -57,9 +57,9 @@ if (isset($_POST['email']) && isset($_FILES['pdf'])) {
 
       try {
         $mail->send();
-        echo json_encode(['success' => true, 'message' => 'Correo electrónico enviado correctamente.']);
+        echo json_encode(['success' => true, 'message' => 'Correo electronico enviado correctamente. Por favor, vuelva hacia atras para acceder a la APP.']);
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Hubo un error al enviar el correo electrónico: ' . $mail->ErrorInfo]);
+      echo json_encode(['success' => false, 'message' => 'Hubo un error al enviar el correo electronico: ' . $mail->ErrorInfo . ' Por favor, vuelva hacia atras para acceder a la APP.']);
     }
 } else {
     // Enviar mensaje de error si faltan datos
