@@ -1,8 +1,8 @@
 <?php
-include_once "/var/www/html/models/productsmodel.php";
-$productsModel = new ProductsModel();
+include_once "/var/www/html/models/insproductsmodel.php";
+$insproductsModel = new InsProductsModel();
 
-$products = $productsModel->getAll();
+$products = $insproductsModel->getAll();
 function cmp($a, $b) {
     return $a->getId() - $b->getId();
 }
@@ -12,19 +12,23 @@ usort($products, "cmp");
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Productos</title>
+    <title>Lotes ingresados</title>
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-6">Productos</h1>
+        <h1 class="mt-6">Lotes Ingresados</h1>
         <table class="table table-striped mt-4">
             <thead>
                 <tr>
                     <!-- <th>ID</th> -->
+                    <th>Número de lote</th>
                     <th>Producto</th>
-                    <th>Stock</th>
+                    <th>Cantidad</th>
                     <th></th>
-                    <th>Alerta stock</th>
+                    <th>Precio</th>
+                    <th>Proveedor</th>
+                    <th>Fecha de compra</th>
+                    <th>Fecha de vencimiento</th>
                     <th>Eliminar Producto</th>
                     <th>Editar Producto</th>
                 </tr>
@@ -33,12 +37,16 @@ usort($products, "cmp");
             <?php foreach ($products as $product): ?>
                 <tr>
                     <input type="hidden" name="id" value="<?php echo $product->getId(); ?>">
+                    <td><?php echo $product->getBatchNumber(); ?></td>
                     <td><?php echo $product->getItemName(); ?></td>
-                    <td><?php echo $product->getStock(); ?></td>
+                    <td><?php echo $product->getQuantity(); ?></td>
                     <td><?php echo $product->getNameType(); ?></td>
-                    <td><?php if(($product->getStock()) <= ($product->getStockAlert())){echo 'CONSIDERE COMPRAR MÁS';} else{echo 'Va bien';}?></td>
+                    <td><?php echo $product->getPrice(); ?></td>
+                    <td><?php echo $product->getRazonSocial(); ?></td>
+                    <td><?php echo $product->getPurchaseDate(); ?></td>
+                    <td><?php echo $product->getExpirationDate(); ?></td>
                     <td>
-                        <form id="deleteForm" action='<?php echo constant('URL'); ?>crud_products/deleteProduct' method="POST">
+                        <form id="deleteForm" action='<?php echo constant('URL'); ?>crud_insproducts/deleteProduct' method="POST">
                             <input type="hidden" name="id" value="<?php echo $product->getId(); ?>">
                             <button class="btn btn-danger" type="button" name="eliminar" onclick="confirmDelete('<?php echo $product->getId(); ?>')">Eliminar</button>
                         </form>
@@ -62,7 +70,7 @@ usort($products, "cmp");
 function openEditModal(productId) {
     // Realiza una solicitud AJAX para obtener el formulario de edición
     $.ajax({
-        url: "views/products/edit_products.php", 
+        url: "views/products_insert/edit_inserted_products.php", 
         type: "GET",
         data: { id: productId }, 
         success: function(response) {
@@ -74,8 +82,8 @@ function openEditModal(productId) {
         }
     });
 }
-
 </script>
+
 <script>
 
 function confirmDelete(productId) {
@@ -90,7 +98,7 @@ function confirmDelete(productId) {
     }).then((result) => {
         if (result.isConfirmed) {
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "<?php echo constant('URL') ?>crud_products/deleteProduct", true);
+            xhr.open("POST", "<?php echo constant('URL') ?>crud_insproducts/deleteProduct", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.onload = function () {
                 if (xhr.status === 200) {
@@ -99,7 +107,7 @@ function confirmDelete(productId) {
                     if (row) {
                         row.remove();
                     }
-                    CargarContenido('views/products/crud_products.php', 'content-wrapper');
+                    CargarContenido('views/products_insert/crud_inserted_products.php', 'content-wrapper');
                 } else {
                     console.error('Error en la solicitud: ' + xhr.status);
                 }

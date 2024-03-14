@@ -30,65 +30,51 @@ $types = $productsModel->getAllTypes();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
 <script>
-
     var existingNames = <?php echo json_encode($productsModel->getAllTypeNames()); ?>;
-    document.querySelector('form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        console.log(existingNames);
+document.querySelector('form').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-        var name = document.getElementById('name').value;
-        var nameError = document.getElementById('name-error');
+    var name = document.getElementById('name').value;
+    var nameError = document.getElementById('name-error');
 
-        if (existingNames.includes(name)) {
+    if (existingNames.includes(name)) {
+        nameError.innerText = 'El nombre del tipo ya está en uso.';
+     
+        Swal.fire({
+            icon: 'error',
+            title: 'TIPO YA EXISTE',
+            text: 'Por favor ingrese otro tipo'
+        });
+    } else {
+        const formData = new FormData(this);
 
-            nameError.innerText = 'El nombre del tipo ya está en uso.';
-         
-            Swal.fire({
-                    icon: 'error',
-                    title: 'TIPO YA EXISTE',
-                    text: 'Por favor ingrese otro tipo'
-                }).then(() => {
-          
-                });
-            
+        const xhr = new XMLHttpRequest();
 
-        } else {
+        xhr.open('POST', 'crud_products/createType', true);
 
-
-            const formulario = document.getElementById('miFormulario');
-
-            formulario.addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const formData = new FormData(formulario);
-
-            const xhr = new XMLHttpRequest();
-
-            xhr.open('POST', 'crud_products/createType', true);
-
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-
+        xhr.onload = function () {
+            if (xhr.status === 200) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Éxito',
                     text: 'Formulario enviado con éxito'
                 }).then(() => {
-                    formulario.reset();
+                    document.getElementById('miFormulario').reset();
                 });
-                } else {
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: 'Error al enviar el formulario',
                 });
-                }
-            };
+            }
+        };
 
-            xhr.send(formData);
-            });
+        xhr.send(formData);
+    }
+});
 
-        }
-    });
 </script>
