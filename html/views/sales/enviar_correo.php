@@ -54,7 +54,7 @@ if (isset($_POST['email']) && isset($_FILES['pdf'])) {
       $mail->Port       = 587;                                    // TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
       // Recipients
-      $mail->setFrom('appfoodsoporte@gmail.com', 'AppFoodSoporte');
+      $mail->setFrom($appEmail, 'AppFoodSoporte');
       $mail->addAddress($emailCliente);     // Add a recipient
 
       // Attachments
