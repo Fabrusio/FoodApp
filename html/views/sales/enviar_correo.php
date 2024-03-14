@@ -11,6 +11,16 @@ require 'PHPMailer-master/src/Exception.php';
 require 'PHPMailer-master/src/PHPMailer.php';
 require 'PHPMailer-master/src/SMTP.php';
 
+$file = fopen("../../config/Config.txt", "r") or die("No se pudo abrir el archivo.");
+while(!feof($file)){
+  $line = fgets($file);
+  $config = explode("|", $line);
+  $appEmail = $config[0];
+  $password = $config[1];
+
+}
+fclose($file);
+
 function validarEmail($email) {
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
       return false;
@@ -38,8 +48,8 @@ if (isset($_POST['email']) && isset($_FILES['pdf'])) {
       $mail->isSMTP();                                            // Send using SMTP
       $mail->Host       = 'smtp.gmail.com';                     // Set the SMTP server to send through
       $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-      $mail->Username   = 'appfoodsoporte@gmail.com';                     // SMTP username
-      $mail->Password   = 'namtybaapzckjeem';                               // SMTP password
+      $mail->Username   = $appEmail;                     // SMTP username
+      $mail->Password   = $password;                               // SMTP password
       $mail->SMTPSecure = 'tls';            // Enable implicit TLS encryption
       $mail->Port       = 587;                                    // TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
@@ -57,12 +67,11 @@ if (isset($_POST['email']) && isset($_FILES['pdf'])) {
 
       try {
         $mail->send();
-        echo json_encode(['success' => true, 'message' => 'Correo electronico enviado correctamente. Por favor, vuelva hacia atras para acceder a la APP.']);
+        echo json_encode("Correo electronico enviado correctamente. Por favor, vuelva hacia atras para acceder a la APP.");
     } catch (Exception $e) {
-      echo json_encode(['success' => false, 'message' => 'Hubo un error al enviar el correo electronico: ' . $mail->ErrorInfo . ' Por favor, vuelva hacia atras para acceder a la APP.']);
+      echo json_encode(['Hubo un error al enviar el correo electronico: ' . $mail->ErrorInfo . ' Por favor, vuelva hacia atras para acceder a la APP.']);
     }
 } else {
-    // Enviar mensaje de error si faltan datos
     echo json_encode(['success' => false, 'message' => 'Faltan datos en la solicitud']);
 }
 ?>
