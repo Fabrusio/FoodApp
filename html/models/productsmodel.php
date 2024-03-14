@@ -228,7 +228,116 @@ class ProductsModel extends Model{
             return false;
         }
     }
+
+
+    //TIPO DE PESAJE, UNIDAD
     
+    public function getAllTypeNames(){
+        $names = [];
+        try{
+            $query = $this->query('SELECT type_name FROM product_types');
+            while($row = $query->fetch(PDO::FETCH_ASSOC)){
+                $names[] = $row['type_name'];
+            }
+            return $names;
+        }catch(PDOException $e){
+            error_log('PRODUCTSMODEL::getAllTypeNames-> PDOException '.$e);
+            return [];
+        }
+    }
+
+    public function nameTypeExists($id, $name) {
+        try {
+            $query = $this->prepare("SELECT COUNT(*) as count FROM product_types WHERE (type_name = :name) AND id_type != :id");
+            $query->execute([':name' => $name, ':id' => $id]);
+            $result = $query->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 0;
+        } catch (PDOException $e) {
+            error_log('Error: ' . $e);
+            return false;  
+        }
+    }
+
+    public function getType($id){
+        try{
+            $query = $this->prepare('SELECT product_types.*, product_types.type_name
+                                        FROM product_types
+                                        WHERE product_types.id_type= :id;');
+            $query->execute([
+                'id' => $id,
+            ]);
+
+            $user = $query->fetch(PDO::FETCH_ASSOC);
+            if ($user === false) {
+                return null; // El tipo no fue encontrado
+            }
+            $this->setIdType($user['id_type']);	
+            $this->setNameType($user['type_name']);
+
+            return $this;
+        }catch(PDOException $e){
+            error_log('PRODUCTSMODEL::getIdType-> PDOException '.$e);
+        }
+    }
+
+    public function createType($nameType) {
+        try {
+            $database = new Database();
+            $pdo = $database->connect();
+            $pdo->beginTransaction();
+
+            $query = $pdo->prepare('INSERT INTO product_types(type_name) 
+            VALUES (:nameType)');
+
+
+            $query->execute([
+                'nameType' => $nameType,
+            ]);
+
+            // Confirmar la transacción
+            $pdo->commit();
+
+            return true;
+        } catch (PDOException $e) {
+            // Revertir la transacción en caso de error
+            $pdo->rollBack();
+            error_log('MENUMODEL::createType-> PDOException ' . $e);
+
+            return false;
+        }
+    }
+
+    public function deleteType($id){
+        try{
+            $query = $this->prepare('DELETE FROM product_types WHERE id_type = :id');
+            $query->execute([
+                'id' => $id,
+            ]);
+            return true;
+        }catch(PDOException $e){
+            error_log('PRODUCTSMODEL::deleteType-> PDOException '.$e);
+            return false;
+        }
+    }
+
+    public function updateType($id, $name){
+        try{
+            
+            $query = $this->prepare('UPDATE product_types SET type_name = :name WHERE id_type = :id');
+            
+            $query->execute([
+                'id' => $id,
+                'name' => $name,
+            ]);
+            
+
+            return true;
+        }catch(PDOException $e){
+            error_log('PRODUCTSMODEL::updateType-> PDOException '.$e);
+
+            return false;
+        }
+    }
 
 
 

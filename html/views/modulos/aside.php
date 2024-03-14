@@ -149,6 +149,18 @@ session_start();
                                  <p>Agregar Productos</p>
                              </a>
                          </li>
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products/crud_types.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Administrar Tipos</p>
+                             </a>
+                         </li>
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products/create_types.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Agregar Tipos</p>
+                             </a>
+                         </li>
                      </ul>
                  </li>
                  <?php }  if ($_SESSION["user_role"]==1) { ?>
