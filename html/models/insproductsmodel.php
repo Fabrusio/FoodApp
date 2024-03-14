@@ -4,6 +4,9 @@ include_once '/var/www/html/libs/model.php';
 require_once '/var/www/html/libs/imodel.php';
 require_once '/var/www/html/libs/model.php';
 
+// En este modelo se encuentran las funciones para manipular las tablas de insert_products, batch_removal_products y deleted_batches 
+// en la base de datos. Cada una está separada mediante unos títulos en forma de comentarios.
+
 class InsProductsModel extends Model{
     private $id;
     private $idItemName;
@@ -18,6 +21,9 @@ class InsProductsModel extends Model{
     private $purchaseDate;
     private $expirationDate;
     private $batchNumber;
+    private $idRemoval;
+    private $removalReason;
+    private $deletedDate;
     
     public function __construct() {
         parent::__construct();
@@ -34,6 +40,9 @@ class InsProductsModel extends Model{
         $this->purchaseDate = '';
         $this->expirationDate = '';
         $this->batchNumber = '';
+        $this->idRemoval = 0;
+        $this->removalReason = '';
+        $this->deletedDate = '';
     }
 
     public function insertProduct($idItemName, $quantity, $price, $providerId, $expirationDate, $batchNumber, $purchaseDate) {
@@ -172,7 +181,250 @@ class InsProductsModel extends Model{
             return false; 
         }
     }
+
+    public function deleteBatch($idItemName, $quantity, $price, $providerId, $expirationDate, $batchNumber, $purchaseDate, $reason) {
+        try {
+            $query = $this->prepare('INSERT INTO deleted_batches (id_name_item, quantity, price, id_provedor, expiration_date, batch_number, purchase_date, id_deleted_reason) 
+            VALUES (:name, :quantity, :price, :provider, :expirationDate, :batchNumber, :purchaseDate, :reason)');
+            $query->execute([
+                'name' => $idItemName,
+                'quantity' => $quantity,
+                'price' => $price,
+                'provider' => $providerId,
+                'expirationDate' => $expirationDate,
+                'batchNumber' => $batchNumber,
+                'purchaseDate' => $purchaseDate,
+                'reason' => $reason,
+            ]);
+
+            $deleteQuery = $this->prepare('DELETE FROM insert_products 
+                                       WHERE id_name_item = :name 
+                                       AND quantity = :quantity 
+                                       AND price = :price 
+                                       AND id_provedor = :provider 
+                                       AND expiration_date = :expirationDate 
+                                       AND batch_number = :batchNumber 
+                                       AND purchase_date = :purchaseDate');
+            $deleteQuery->execute([
+                'name' => $idItemName,
+                'quantity' => $quantity,
+                'price' => $price,
+                'provider' => $providerId,
+                'expirationDate' => $expirationDate,
+                'batchNumber' => $batchNumber,
+                'purchaseDate' => $purchaseDate,
+            ]);
+            
+            // Obtener el ID correspondiente
+            $selectProductIdQuery = $this->prepare('SELECT id_product FROM products WHERE id_product = :id_product LIMIT 1');
+            $selectProductIdQuery->execute(['id_product' => $idItemName]);
+            $product = $selectProductIdQuery->fetch(PDO::FETCH_ASSOC);
+
+            // Verificar si se encontró el producto en la tabla products
+            if ($product) {
+                $productId = $product['id_product'];
+                
+                // Actualizar stock en la tabla products
+                $updateQuery = $this->prepare('UPDATE products SET stock = stock - :quantity WHERE id_product = :id_product');
+                $updateQuery->execute([
+                    'quantity' => $quantity,
+                    'id_product' => $productId,
+                ]);
+            } 
     
+            return true;
+        } catch (PDOException $e) {
+            error_log('INSERTEDPRODUCTSMODEL::deletedBatch-> PDOException ' . $e);
+            return false;
+        }
+    }    
+    
+
+    //         --------------------------------
+    //                LOTES ELIMINADOS
+    //         --------------------------------
+
+
+    public function getAllDeletedBatches(){
+        $deletedBatches = [];
+        try{
+            $query = $this->query('SELECT deleted_batches.*, 
+                                        products.name_iten AS item_name,
+                                        provedores.razon_social AS provedor_razon_social,
+                                        batch_removal_reasons.reason AS deleted_reason
+                                    FROM deleted_batches
+                                    LEFT JOIN products ON deleted_batches.id_name_item = products.id_product
+                                    LEFT JOIN provedores ON deleted_batches.id_provedor = provedores.id_provedor
+                                    LEFT JOIN batch_removal_reasons ON deleted_batches.id_deleted_reason = batch_removal_reasons.id_reason');
+            
+            while($row = $query->fetch(PDO::FETCH_ASSOC)){
+                $deletedBatch = new InsProductsModel();
+                $deletedBatch->setId($row['id_deleted_batch']);
+                $deletedBatch->setIdItemName($row['id_name_item']);
+                $deletedBatch->setQuantity($row['quantity']);
+                $deletedBatch->setPrice($row['price']);
+                $deletedBatch->setIdProvider($row['id_provedor']);
+                $deletedBatch->setPurchaseDate($row['purchase_date']);
+                $deletedBatch->setExpirationDate($row['expiration_date']);
+                $deletedBatch->setBatchNumber($row['batch_number']);
+                $deletedBatch->setIdRemoval($row['id_deleted_reason']);
+                $deletedBatch->setDeletedDate($row['deleted_date']);
+                $deletedBatch->setItemName($row['item_name']);
+                $deletedBatch->setRazonSocial($row['provedor_razon_social']);
+                $deletedBatch->setRemovalReason($row['deleted_reason']);
+    
+                array_push($deletedBatches, $deletedBatch);
+            }
+            return $deletedBatches;
+        }catch(PDOException $e){
+            error_log('INSERTEDPRODUCTSMODEL::getAllDeletedBatches-> PDOException '.$e);
+            return false;
+        }
+    }
+    
+    public function deleteDBatch($id){
+        try{
+            $query = $this->prepare('DELETE FROM deleted_batches WHERE id_deleted_batch = :id');
+            $query->execute([
+                'id' => $id,
+            ]);
+            return true;
+        }catch(PDOException $e){
+            error_log('INSPRODUCTSMODEL::deleteDBatch-> PDOException '.$e);
+            return false;
+        }
+    }
+    
+
+    //         --------------------------------
+    //              RAZONES A DAR DE BAJA
+    //         --------------------------------
+
+
+    public function getAllReasons() {
+        $reasons = [];
+        try {
+            $query = $this->query('SELECT * FROM batch_removal_reasons');
+    
+            while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+                $reason = new InsProductsModel();
+                $reason->setIdRemoval($row['id_reason']);
+                $reason->setRemovalReason($row['reason']);
+                
+                $reasons[] = $reason;
+            }
+    
+            return $reasons;
+        } catch (PDOException $e) {
+            error_log('Error al obtener todas las razones de eliminación: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function getReason($id){
+        try{
+            $query = $this->prepare('SELECT batch_removal_reasons.*, batch_removal_reasons.reason
+                                        FROM batch_removal_reasons
+                                        WHERE batch_removal_reasons.id_reason= :id;');
+            $query->execute([
+                'id' => $id,
+            ]);
+
+            $user = $query->fetch(PDO::FETCH_ASSOC);
+            if ($user === false) {
+                return null;
+            }
+            $this->setIdRemoval($user['id_reason']);	
+            $this->setRemovalReason($user['reason']);
+
+            return $this;
+        }catch(PDOException $e){
+            error_log('PRODUCTSMODEL::getIdType-> PDOException '.$e);
+        }
+    }
+
+    public function createReason($reason) {
+        try {
+            $database = new Database();
+            $pdo = $database->connect();
+            $pdo->beginTransaction();
+
+            $query = $pdo->prepare('INSERT INTO batch_removal_reasons(reason) 
+            VALUES (:reason)');
+
+
+            $query->execute([
+                'reason' => $reason,
+            ]);
+
+            $pdo->commit();
+
+            return true;
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            error_log('INSPRODUCTSMODEL::createReason-> PDOException ' . $e);
+
+            return false;
+        }
+    }
+
+    public function deleteReason($id){
+        try{
+            $query = $this->prepare('DELETE FROM batch_removal_reasons WHERE id_reason = :id');
+            $query->execute([
+                'id' => $id,
+            ]);
+            return true;
+        }catch(PDOException $e){
+            error_log('INSPRODUCTSMODEL::deleteReason-> PDOException '.$e);
+            return false;
+        }
+    }
+
+    public function updateReason($id, $reason){
+        try{
+            
+            $query = $this->prepare('UPDATE batch_removal_reasons SET reason = :reason WHERE id_reason = :id');
+            
+            $query->execute([
+                'id' => $id,
+                'reason' => $reason,
+            ]);
+            
+
+            return true;
+        }catch(PDOException $e){
+            error_log('INSPRODUCTSMODEL::updateReason-> PDOException '.$e);
+
+            return false;
+        }
+    }
+
+    public function reasonExists($id, $name) {
+        try {
+            $query = $this->prepare("SELECT COUNT(*) as count FROM batch_removal_reasons WHERE (reason = :name) AND id_reason != :id");
+            $query->execute([':name' => $name, ':id' => $id]);
+            $result = $query->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 0;
+        } catch (PDOException $e) {
+            error_log('Error: ' . $e);
+            return false;  
+        }
+    }
+
+    public function getReasonsDetails(){
+        $names = [];
+        try{
+            $query = $this->query('SELECT reason FROM batch_removal_reasons');
+            while($row = $query->fetch(PDO::FETCH_ASSOC)){
+                $names[] = $row['reason'];
+            }
+            return $names;
+        }catch(PDOException $e){
+            error_log('INSPRODUCTSMODEL::getReasonsDetails-> PDOException '.$e);
+            return [];
+        }
+    }
     
     
     public function setId($id){             $this->id = $id;  }
@@ -188,6 +440,9 @@ class InsProductsModel extends Model{
     public function setPurchaseDate($purchaseDate){             $this->purchaseDate = $purchaseDate;  }
     public function setExpirationDate($expirationDate){             $this->expirationDate = $expirationDate;  }
     public function setBatchNumber($batchNumber){             $this->batchNumber = $batchNumber;  }
+    public function setIdRemoval($idRemoval){             $this->idRemoval = $idRemoval;  }
+    public function setRemovalReason($removalReason){             $this->removalReason = $removalReason;  }
+    public function setDeletedDate($deletedDate){             $this->deletedDate = $deletedDate;  }
 
     public function getId(){                return $this->id;}
     public function getIdItemName(){                return $this->idItemName;}
@@ -202,6 +457,9 @@ class InsProductsModel extends Model{
     public function getPurchaseDate(){                return $this->purchaseDate;}
     public function getExpirationDate(){                return $this->expirationDate;}
     public function getBatchNumber(){                return $this->batchNumber;}
+    public function getIdRemoval(){                return $this->idRemoval;}
+    public function getRemovalReason(){                return $this->removalReason;}   
+    public function getDeletedDate(){                return $this->deletedDate;} 
 
 }
 

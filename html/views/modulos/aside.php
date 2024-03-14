@@ -178,6 +178,33 @@ session_start();
                  <?php }  if ($_SESSION["user_role"]==1) { ?>
                  <li class="nav-item">
                      <a href="#" class="nav-link">
+                     <i class="nav-icon fas fa-trash  text-warning"></i> 
+                         <p>Dar de baja<i class="right fas fa-angle-left"></i></p>
+                     </a>
+                     <ul class="nav nav-treeview">
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products_removal/crud_removal_products.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Razones de baja</p>
+                             </a>
+                         </li>
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products_removal/create_removal_products.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Añadir razones de baja</p>
+                             </a>
+                         </li>
+                         <li class="nav-item">
+                             <a href="#" class="nav-link" style="cursor:pointer;" onclick="CargarContenido('views/products_removal/deleted_batches.php','content-wrapper')">
+                                 <i class="far fa-circle nav-icon"></i>
+                                 <p>Lotes eliminados</p>
+                             </a>
+                         </li>
+                     </ul>
+                 </li>
+                 <?php }  if ($_SESSION["user_role"]==1) { ?>
+                 <li class="nav-item">
+                     <a href="#" class="nav-link">
                      <i class="nav-icon fas fa-truck text-warning"></i>
                          <p>Proveedores<i class="right fas fa-angle-left"></i></p>
                      </a>
