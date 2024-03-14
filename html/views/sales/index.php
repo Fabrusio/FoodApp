@@ -1054,7 +1054,9 @@ function generarPDF(arr, totalVenta, paymentMethod, datos) {
     pdf.text(`Método de Pago: ${nombreMetodoPago}`, 20, 70 + arr.length * 10);
     pdf.text(`${fechaHoraFormato}`, 20, 90 + arr.length * 10)
 
-    pdf.save("venta.pdf");
-}
+    var nombreArchivo = "venta.pdf";
+    pdf.save(nombreArchivo);
+
+ } 
 
 </script>

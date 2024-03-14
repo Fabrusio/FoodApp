@@ -215,22 +215,29 @@ class InsProductsModel extends Model{
                 'purchaseDate' => $purchaseDate,
             ]);
             
-            // Obtener el ID correspondiente
-            $selectProductIdQuery = $this->prepare('SELECT id_product FROM products WHERE id_product = :id_product LIMIT 1');
+            $selectProductIdQuery = $this->prepare('SELECT id_product, stock FROM products WHERE id_product = :id_product LIMIT 1');
             $selectProductIdQuery->execute(['id_product' => $idItemName]);
             $product = $selectProductIdQuery->fetch(PDO::FETCH_ASSOC);
 
-            // Verificar si se encontró el producto en la tabla products
             if ($product) {
                 $productId = $product['id_product'];
-                
+                $currentStock = $product['stock'];
+
+                // Calcular el nuevo stock después de la resta
+                $newStock = $currentStock - $quantity;
+
+                // Verificar si el nuevo stock es menor que cero
+                if ($newStock < 0) {
+                    $newStock = 0;
+                }
+
                 // Actualizar stock en la tabla products
-                $updateQuery = $this->prepare('UPDATE products SET stock = stock - :quantity WHERE id_product = :id_product');
+                $updateQuery = $this->prepare('UPDATE products SET stock = :newStock WHERE id_product = :id_product');
                 $updateQuery->execute([
-                    'quantity' => $quantity,
+                    'newStock' => $newStock,
                     'id_product' => $productId,
                 ]);
-            } 
+            }
     
             return true;
         } catch (PDOException $e) {
